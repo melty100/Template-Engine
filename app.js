@@ -9,53 +9,53 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-const managerQuestions = [
-    {
-        type: "input",
-        message: "Enter Manager's name",
-        name: "managerName"
-    },
-    {
-        type: "input",
-        message: "Enter Manager's email",
-        name: "managersEmail"
-    },
-    {
-        type: "input",
-        message: "Enter manager's office number.",
-        name: "managersOfficeNum"
-    }
-];
 
-const memberQuestions = [
+
+const questions = [
     {
         type: "input",
         message: "Enter first and last name",
-        name: "memberName"
+        name: "name"
+    },
+    {
+        type: "input",
+        message: "Enter your Id",
+        name: "id"
+    },
+    {
+        type: "input", 
+        message: "Enter your email adress",
+        name: "email"
     },
     {
         type: "list",
         message: "Enter job title.",
         name: "title",
-        choices: ["Intern", "Engineer", "Programmer"]
+        choices: ["Intern", "Engineer", "Manager"]
+    },
+    {
+        type: "input",
+        message: "Enter office number",
+        name: "officeNumber",
+        when: (ans) => {return ans.title === 'Manager';}
     },
     {
         type: "input",
         message: "Enter your github username",
-        name: "github"
-    },
-    {
-        type: "input", 
-        message: "Enter your email adress",
-        name: "memberEmail"
+        name: "github",
+        when: (ans) => {return ans.title === 'Engineer';}
     },
     {
         type: "input", 
         message: "Enter last school/college attended.",
-        name: "uni",
-        when: (ans) => {return ans.title == "Intern";}
+        name: "school",
+        when: (ans) => {return ans.title === 'Intern';}
+    },
+    {
+        type: "confirm",
+        message: "Enter another team member's information?",
+        name: "done"
     }
-
 ];
 
 
@@ -82,27 +82,38 @@ const memberQuestions = [
 // object with the correct structure and methods. This structure will be crucial in order
 // for the provided `render` function to work! ```
 
-inquirer
-.prompt(managerQuestions)
-.then((ans) => {
 
-})
-.then(() => {
+//Prompts user for member info and returns it wrapped 
+async function asyncInquirer(questions){
 
-    let done = false;
+    var done = false;
+    var team = [];
+
     while(!done){
-        inquirer
-        .prompt(memberQuestions)
-        .then((ans) => {
+
+        let ans = await inquirer.prompt(questions);
+        let employee = '';
     
-        })
-        .catch((err) => {
+        switch(ans.title){
+            case 'Manager':
+                employee = new Manager(ans.name, ans.id, ans.email, ans.officeNumber);
+                break;
+            case 'Engineer':
+                employee = new Engineer(ans.name, ans.id, ans.email, ans.github);
+                break;
+            case 'Intern':
+                employee = new Intern(ans.name, ans.id, ans.email, ans.school);
+                break;
+            default:
+                break;
+        }
+        
+        team.push(employee);
+        done = !(ans.done);
     
-        });
-        done = confirm("Enter another employee's information?");
     }
-})
-.catch((err) => {
 
-});
+    fs.writeFile(outputPath, render(team), function(err) {});
+}
 
+asyncInquirer(questions);
