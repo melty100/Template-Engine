@@ -83,26 +83,26 @@ const questions = [
 // for the provided `render` function to work! ```
 
 
-//Prompts user for member info and returns it wrapped 
+//Generates a html file in output directory with user input via CL
 async function asyncInquirer(questions){
 
     var done = false;
     var team = [];
 
+    //Loops for each member
     while(!done){
 
         let ans = await inquirer.prompt(questions);
-        let employee = '';
     
         switch(ans.title){
             case 'Manager':
-                employee = new Manager(ans.name, ans.id, ans.email, ans.officeNumber);
+                var employee = new Manager(ans.name, ans.id, ans.email, ans.officeNumber);
                 break;
             case 'Engineer':
-                employee = new Engineer(ans.name, ans.id, ans.email, ans.github);
+                var employee = new Engineer(ans.name, ans.id, ans.email, ans.github);
                 break;
             case 'Intern':
-                employee = new Intern(ans.name, ans.id, ans.email, ans.school);
+                var employee = new Intern(ans.name, ans.id, ans.email, ans.school);
                 break;
             default:
                 break;
